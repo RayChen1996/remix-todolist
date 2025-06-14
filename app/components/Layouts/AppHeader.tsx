@@ -5,6 +5,7 @@ import { useAuthStore } from "~/store/auth";
 export default function AppHeader() {
   const navigate = useNavigate();
   const token = useAuthStore((s) => s.token);
+  const nickName = useAuthStore((s) => s.nickName);
   const userEmail = useAuthStore((s) => s.userEmail);
   const clearAuth = useAuthStore((s) => s.clear);
 
@@ -27,10 +28,10 @@ export default function AppHeader() {
           {token && (
             <>
               <li>
-                <Link to="/todos">待辦事項</Link>
+                <Link to="/todos">{nickName} 待辦事項</Link>
               </li>
               <li>
-                <Link to="/favorites">我的收藏</Link>
+                <Link to="/favorites">{nickName} 的收藏</Link>
               </li>
             </>
           )}

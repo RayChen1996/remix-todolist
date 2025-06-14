@@ -12,6 +12,7 @@ const todosCounts = Array(10).fill(undefined);
 export default function TodosPage() {
   const navigate = useNavigate();
   const token = useAuthStore((s) => s.token);
+  const nickName = useAuthStore((s) => s.nickName);
   // const { add, clear } = useWishListStore();
   // const wishList = useWishListStore((s) => s.wishList);
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -57,7 +58,7 @@ export default function TodosPage() {
 
   return (
     <div className="max-w-xl mx-auto mt-10">
-      <h1 className="text-2xl font-bold mb-4">待辦清單</h1>
+      <h1 className="text-2xl font-bold mb-4">{nickName} 的待辦清單</h1>
 
       <div className="flex gap-2 mb-4">
         <input
