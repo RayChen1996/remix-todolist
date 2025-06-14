@@ -8,6 +8,16 @@ import { useMutation } from "@tanstack/react-query";
 
 const todosCounts = Array(10).fill(undefined);
 
+import { MetaFunction } from "@remix-run/node";
+export const meta: MetaFunction = () => {
+  return [
+    { title: "Remix Todo App - 待辦清單" },
+    {
+      name: "description",
+      content: "Remix Todo App 的待辦清單頁面，管理您的待辦事項。",
+    },
+  ];
+};
 /** - 列表頁 */
 export default function TodosPage() {
   const navigate = useNavigate();

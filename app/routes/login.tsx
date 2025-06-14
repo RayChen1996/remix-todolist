@@ -5,6 +5,17 @@ import { Controller, FormProvider, useForm } from "react-hook-form";
 import { resolver, defaultValues, SchemaType } from "./../forms/signIn";
 import { toast } from "react-toastify";
 import { useNavigate } from "@remix-run/react";
+import { MetaFunction } from "@remix-run/node";
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: "Remix Todo App - 登入" },
+    {
+      name: "description",
+      content: "Remix Todo App 的登入頁面，請輸入您的帳號和密碼。",
+    },
+  ];
+};
 /** - 登入頁 */
 export default function LoginPage() {
   const setToken = useAuthStore((s) => s.setToken);

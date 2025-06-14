@@ -4,7 +4,16 @@ import { useNavigate } from "@remix-run/react";
 import { useAuthStore } from "~/store/auth";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { resolver, defaultValues, SchemaType } from "../forms/signUp";
-
+import { MetaFunction } from "@remix-run/node";
+export const meta: MetaFunction = () => {
+  return [
+    { title: "註冊 | Remix Todo App" },
+    {
+      name: "description",
+      content: "Remix Todo App 的註冊頁面，請輸入您的帳號、密碼和暱稱。",
+    },
+  ];
+};
 /** - 註冊頁 */
 export default function RegisterPage() {
   const navigate = useNavigate();

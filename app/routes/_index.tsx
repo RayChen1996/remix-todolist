@@ -12,7 +12,7 @@ import { useAuthStore } from "~/store/auth"
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Remix Todo App - 儀錶板",description: "Remix Todo App 的儀錶板頁面，顯示未完成的待辦事項倒數計時。", },
+    { title: "儀錶板 | Remix Todo App",description: "Remix Todo App 的儀錶板頁面，顯示未完成的待辦事項倒數計時。", },
     { name: "description", content: "Remix Todo App 的儀錶板頁面，顯示未完成的待辦事項倒數計時。" },
   ];
 };

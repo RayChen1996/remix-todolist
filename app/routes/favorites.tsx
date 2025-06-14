@@ -1,6 +1,16 @@
 import { format } from "date-fns";
 import { useWishListStore } from "~/store/wishlist";
 
+import { MetaFunction } from "@remix-run/node";
+export const meta: MetaFunction = () => {
+  return [
+    { title: "Remix Todo App - 收藏列表" },
+    {
+      name: "description",
+      content: "Remix Todo App 的收藏列表頁面，顯示用戶收藏的項目。",
+    },
+  ];
+};
 /** - 收藏列表頁 */
 export default function Favorites() {
   const { wishList } = useWishListStore();
