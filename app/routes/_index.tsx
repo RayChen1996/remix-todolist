@@ -1,4 +1,6 @@
 "use client"
+import { MetaFunction } from "@remix-run/node"
+ 
 import type React from "react"
 
 import { useCallback, useEffect, useState } from "react"
@@ -6,6 +8,14 @@ import type { Todo } from "~/schema/Todo"
 import { useAuthStore } from "~/store/auth"
 
 
+ 
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: "Remix Todo App - 儀錶板",description: "Remix Todo App 的儀錶板頁面，顯示未完成的待辦事項倒數計時。", },
+    { name: "description", content: "Remix Todo App 的儀錶板頁面，顯示未完成的待辦事項倒數計時。" },
+  ];
+};
 /** - 首頁 */
 export default function Index() {
   const token = useAuthStore((s) => s.token)
