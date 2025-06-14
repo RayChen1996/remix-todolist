@@ -14,6 +14,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
+import { useAuthStore } from "./store/auth";
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
@@ -47,6 +48,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   const [queryClient] = useState(() => new QueryClient());
+  const { clear, exp } = useAuthStore();
+  exp && exp < Date.now() / 1000 && clear(); // 清除過期的 token
   return (
     <div className=" flex flex-col min-h-screen">
       <AppHeader />

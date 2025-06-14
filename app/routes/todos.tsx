@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, memo } from "react";
 import { useNavigate } from "@remix-run/react";
 import { useAuthStore } from "~/store/auth";
 import { useWishListStore } from "~/store/wishlist";
@@ -106,7 +106,7 @@ type TodoItemProps = {
   refetchTodos?: () => void;
 };
 
-function TodoItem({ todo, refetchTodos }: TodoItemProps) {
+const TodoItem = memo(function TodoItem({ todo, refetchTodos }: TodoItemProps) {
   const token = useAuthStore((s) => s.token);
 
   // const queryClient = useQueryClient();
@@ -133,14 +133,22 @@ function TodoItem({ todo, refetchTodos }: TodoItemProps) {
     refetchTodos?.();
   };
 
+  const { mutate: toggleMutate, isPending: isTogglePending } = useMutation({
+    mutationFn: async (id: string) => {
+      await fetch(`https://todolist-api.hexschool.io/todos/${id}/toggle`, {
+        method: "PATCH",
+        headers: {
+          Authorization: token,
+        },
+      });
+    },
+    onSuccess: () => {
+      fetchTodos();
+    },
+  });
+
   const toggleTodo = async (id: string) => {
-    await fetch(`https://todolist-api.hexschool.io/todos/${id}/toggle`, {
-      method: "PATCH",
-      headers: {
-        Authorization: token,
-      },
-    });
-    fetchTodos();
+    await toggleMutate(id);
   };
 
   const handleDelete = async () => {
@@ -153,10 +161,22 @@ function TodoItem({ todo, refetchTodos }: TodoItemProps) {
 
   return (
     <li className="flex items-center justify-between p-4 border rounded">
-      <div className="flex items-center">
-        <input type="checkbox" onChange={handleToggle} className="mr-2" />
-        <span>{todo.content}</span>
-      </div>
+      <label className="flex items-center cursor-pointer">
+        {isTogglePending ? (
+          <span className="loading loading-spinner mr-2"></span>
+        ) : (
+          <input
+            type="checkbox"
+            checked={todo.status}
+            onChange={handleToggle}
+            className="mr-2 checkbox checkbox-primary"
+          />
+        )}
+
+        <span className={todo.status ? "line-through text-gray-400" : ""}>
+          {todo.content}
+        </span>
+      </label>
       <div className="flex items-center gap-2">
         <button
           className="btn btn-secondary btn-sm"
@@ -179,4 +199,4 @@ function TodoItem({ todo, refetchTodos }: TodoItemProps) {
       </div>
     </li>
   );
-}
+});

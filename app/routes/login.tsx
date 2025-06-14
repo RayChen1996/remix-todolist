@@ -8,6 +8,9 @@ import { useNavigate } from "@remix-run/react";
 /** - 登入頁 */
 export default function LoginPage() {
   const setToken = useAuthStore((s) => s.setToken);
+  const setNickName = useAuthStore((s) => s.setNickName);
+  const setUserEmail = useAuthStore((s) => s.setUserEmail);
+  const setExp = useAuthStore((s) => s.setExp);
   const form = useForm<SchemaType>({
     resolver,
     defaultValues,
@@ -41,7 +44,12 @@ export default function LoginPage() {
     });
     const result = await res.json();
     if (result.token) {
+      console.log("登入成功", result);
       setToken(result.token);
+      setNickName(result.nickname);
+      setUserEmail(result.email);
+      setExp(result.exp);
+
       // alert("登入成功");
       toast.success("登入成功", {
         position: "top-center",
