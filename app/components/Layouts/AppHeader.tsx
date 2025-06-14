@@ -150,9 +150,36 @@ export default function AppHeader() {
             <li>
               <Link to="/">首頁</Link>
             </li>
-            <li>
-              <Link to="/todos">{nickName} 的待辦事項</Link>
-            </li>
+            {token ? (
+              <>
+                <li>
+                  <Link to="/todos">{nickName} 的待辦事項</Link>
+                </li>
+                <li>
+                  <Link to="/favorites">{nickName} 的收藏</Link>
+                </li>
+                <li>
+                  <span className="text-sm">👤 {nickName}</span>
+                </li>
+                <li>
+                  <button
+                    onClick={handleLogout}
+                    className="btn btn-error btn-sm text-white"
+                  >
+                    登出
+                  </button>
+                </li>
+              </>
+            ) : (
+              <>
+                <li>
+                  <Link to="/login">登入</Link>
+                </li>
+                <li>
+                  <Link to="/register">註冊</Link>
+                </li>
+              </>
+            )}
           </ul>
         </div>
       </div>
