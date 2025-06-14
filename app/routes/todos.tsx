@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
+"use client";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "@remix-run/react";
 import { useAuthStore } from "~/store/auth";
 import { useWishListStore } from "~/store/wishlist";
 import { Todo } from "~/schema/Todo";
+import { useMutation } from "@tanstack/react-query";
 
 const todosCounts = Array(10).fill(undefined);
 
@@ -17,7 +19,7 @@ export default function TodosPage() {
   const [loading, setLoading] = useState(true); // 加上這一行
 
   // 取得 todos 資料
-  const fetchTodos = async () => {
+  const fetchTodos = useCallback(async () => {
     const res = await fetch("https://todolist-api.hexschool.io/todos", {
       headers: {
         Authorization: token,
@@ -25,7 +27,7 @@ export default function TodosPage() {
     });
     const data = await res.json();
     setTodos(data.data);
-  };
+  }, [token]);
 
   // 登入狀態檢查 + 初始化
   useEffect(() => {
@@ -37,7 +39,7 @@ export default function TodosPage() {
     fetchTodos().finally(() => {
       setLoading(false); // 資料讀完才顯示畫面
     });
-  }, [token, navigate]);
+  }, [token, navigate, fetchTodos]);
 
   const addTodo = async () => {
     if (!newTodo.trim()) return;
@@ -64,6 +66,14 @@ export default function TodosPage() {
           className="input input-bordered w-full"
           value={newTodo}
           onChange={(e) => setNewTodo(e.target.value)}
+          onKeyDown={(e) => {
+            if (
+              (e.key === "Enter" && newTodo.trim()) ||
+              e.key === "NumpadEnter"
+            ) {
+              addTodo();
+            }
+          }}
         />
 
         <button className="btn btn-primary" onClick={addTodo}>
@@ -75,12 +85,17 @@ export default function TodosPage() {
         todosCounts.map((_, index) => (
           <div key={index} className="skeleton w-full h-10 mb-2"></div>
         ))
-      ) : (
+      ) : todos.length > 0 ? (
         <ul className="space-y-2">
           {todos.map((todo) => (
             <TodoItem key={todo.id} todo={todo} refetchTodos={fetchTodos} />
           ))}
         </ul>
+      ) : (
+        <div className="text-center text-gray-500">
+          <p>目前沒有待辦事項</p>
+          <p>快來新增你的第一個待辦吧！</p>
+        </div>
       )}
     </div>
   );
@@ -94,14 +109,25 @@ type TodoItemProps = {
 function TodoItem({ todo, refetchTodos }: TodoItemProps) {
   const token = useAuthStore((s) => s.token);
 
+  // const queryClient = useQueryClient();
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: async (id: string) => {
+      await fetch(`https://todolist-api.hexschool.io/todos/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: token,
+        },
+      });
+    },
+    onSuccess: () => {
+      // queryClient.invalidateQueries({ queryKey: ["todos"] });
+      refetchTodos?.();
+    },
+  });
+
   const deleteTodo = async (id: string) => {
-    await fetch(`https://todolist-api.hexschool.io/todos/${id}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: token,
-      },
-    });
-    fetchTodos();
+    await mutate(id);
   };
   const fetchTodos = async () => {
     refetchTodos?.();
@@ -148,6 +174,7 @@ function TodoItem({ todo, refetchTodos }: TodoItemProps) {
         </button>
         <button className="btn btn-error btn-sm" onClick={handleDelete}>
           刪除
+          {isPending && <span className="loading loading-spinner"></span>}
         </button>
       </div>
     </li>
