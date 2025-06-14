@@ -1,16 +1,17 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "@remix-run/react";
 import { useAuthStore } from "~/store/auth";
+import { useWishListStore } from "~/store/wishlist";
+import { Todo } from "~/schema/Todo";
 
-interface Todo {
-  id: string;
-  content: string;
-  completed_at: string | null;
-}
+const todosCounts = Array(10).fill(undefined);
 
+/** - 列表頁 */
 export default function TodosPage() {
   const navigate = useNavigate();
   const token = useAuthStore((s) => s.token);
+  // const { add, clear } = useWishListStore();
+  // const wishList = useWishListStore((s) => s.wishList);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [newTodo, setNewTodo] = useState("");
   const [loading, setLoading] = useState(true); // 加上這一行
@@ -38,10 +39,6 @@ export default function TodosPage() {
     });
   }, [token, navigate]);
 
-  if (loading) {
-    return <div className="text-center mt-10">載入中...</div>;
-  }
-
   const addTodo = async () => {
     if (!newTodo.trim()) return;
     await fetch("https://todolist-api.hexschool.io/todos", {
@@ -53,26 +50,6 @@ export default function TodosPage() {
       body: JSON.stringify({ content: newTodo }),
     });
     setNewTodo("");
-    fetchTodos();
-  };
-
-  const deleteTodo = async (id: string) => {
-    await fetch(`https://todolist-api.hexschool.io/todos/${id}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: token,
-      },
-    });
-    fetchTodos();
-  };
-
-  const toggleTodo = async (id: string) => {
-    await fetch(`https://todolist-api.hexschool.io/todos/${id}/toggle`, {
-      method: "PATCH",
-      headers: {
-        Authorization: token,
-      },
-    });
     fetchTodos();
   };
 
@@ -88,43 +65,91 @@ export default function TodosPage() {
           value={newTodo}
           onChange={(e) => setNewTodo(e.target.value)}
         />
+
         <button className="btn btn-primary" onClick={addTodo}>
           新增
         </button>
       </div>
 
-      <ul className="space-y-2">
-        {todos.map((todo) => (
-          <li
-            key={todo.id}
-            className="flex justify-between items-center p-3 rounded bg-base-200"
-          >
-            <button
-              type="button"
-              className={`flex-1 text-left bg-transparent border-none p-0 cursor-pointer ${
-                todo.completed_at ? "line-through text-gray-400" : ""
-              }`}
-              onClick={() => toggleTodo(todo.id)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  toggleTodo(todo.id);
-                }
-              }}
-              tabIndex={0}
-              aria-pressed={!!todo.completed_at}
-            >
-              {todo.content}
-            </button>
-            <button
-              onClick={() => deleteTodo(todo.id)}
-              className="btn btn-sm btn-error"
-            >
-              刪除
-            </button>
-          </li>
-        ))}
-      </ul>
+      {loading ? (
+        todosCounts.map((_, index) => (
+          <div key={index} className="skeleton w-full h-10 mb-2"></div>
+        ))
+      ) : (
+        <ul className="space-y-2">
+          {todos.map((todo) => (
+            <TodoItem key={todo.id} todo={todo} refetchTodos={fetchTodos} />
+          ))}
+        </ul>
+      )}
     </div>
+  );
+}
+
+type TodoItemProps = {
+  todo: Todo;
+  refetchTodos?: () => void;
+};
+
+function TodoItem({ todo, refetchTodos }: TodoItemProps) {
+  const token = useAuthStore((s) => s.token);
+
+  const deleteTodo = async (id: string) => {
+    await fetch(`https://todolist-api.hexschool.io/todos/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: token,
+      },
+    });
+    fetchTodos();
+  };
+  const fetchTodos = async () => {
+    refetchTodos?.();
+  };
+
+  const toggleTodo = async (id: string) => {
+    await fetch(`https://todolist-api.hexschool.io/todos/${id}/toggle`, {
+      method: "PATCH",
+      headers: {
+        Authorization: token,
+      },
+    });
+    fetchTodos();
+  };
+
+  const handleDelete = async () => {
+    await deleteTodo(todo.id);
+  };
+
+  const handleToggle = async () => {
+    await toggleTodo(todo.id);
+  };
+
+  return (
+    <li className="flex items-center justify-between p-4 border rounded">
+      <div className="flex items-center">
+        <input type="checkbox" onChange={handleToggle} className="mr-2" />
+        <span>{todo.content}</span>
+      </div>
+      <div className="flex items-center gap-2">
+        <button
+          className="btn btn-secondary btn-sm"
+          onClick={() => {
+            const wishItem = {
+              id: todo.id,
+              createTime: Date.now(),
+              content: todo.content,
+              status: todo.status,
+            };
+            useWishListStore.getState().add(wishItem);
+          }}
+        >
+          收藏
+        </button>
+        <button className="btn btn-error btn-sm" onClick={handleDelete}>
+          刪除
+        </button>
+      </div>
+    </li>
   );
 }

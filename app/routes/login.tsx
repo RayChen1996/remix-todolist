@@ -3,6 +3,8 @@ import { useAuthStore } from "~/store/auth";
 
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { resolver, defaultValues, SchemaType } from "./../forms/signIn";
+import { toast } from "react-toastify";
+import { useNavigate } from "@remix-run/react";
 /** - 登入頁 */
 export default function LoginPage() {
   const setToken = useAuthStore((s) => s.setToken);
@@ -13,6 +15,7 @@ export default function LoginPage() {
   });
 
   const { handleSubmit } = form;
+  const navigate = useNavigate();
 
   // const handleLogin = async (e: React.FormEvent) => {
   //   e.preventDefault();
@@ -39,7 +42,16 @@ export default function LoginPage() {
     const result = await res.json();
     if (result.token) {
       setToken(result.token);
-      alert("登入成功");
+      // alert("登入成功");
+      toast.success("登入成功", {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+      navigate("/todos");
     } else {
       alert("登入失敗：" + result.message);
     }
