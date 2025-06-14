@@ -1,12 +1,22 @@
 "use client"
-
 import type React from "react"
 
 import { useCallback, useEffect, useState } from "react"
 import type { Todo } from "~/schema/Todo"
 import { useAuthStore } from "~/store/auth"
 
+
+/** - 首頁 */
 export default function Index() {
+  const token = useAuthStore((s) => s.token)
+  if (!token) {
+    return (
+      <div className="container mx-auto p-4">
+        <h1 className="text-3xl font-bold mb-4">儀錶板</h1>
+        <p className="mb-6">請先登入以查看待辦事項。</p>
+      </div>
+    )
+  }
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-4">儀錶板</h1>
@@ -57,9 +67,8 @@ function TodoCountdownTable() {
   }, [fetchTodos])
 
   // 過濾未完成的待辦事項並按創建時間排序
-  const incompleteTodos = todos
-    .filter((todo) => !todo.status && todo.createTime)
-    .sort((a, b) => new Date(a.createTime).getTime() - new Date(b.createTime).getTime())
+  const incompleteTodos = todos?.filter((todo) => !todo.status && todo.createTime)
+    .sort((a, b) => new Date(a.createTime).getTime() - new Date(b.createTime).getTime()) || []
 
   // 計算倒數時間 - 修改為每天凌晨12點前才顯示過期
   const calculateTimeLeft = (createTime: string): CountdownTime | null => {
