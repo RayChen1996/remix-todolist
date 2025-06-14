@@ -8,7 +8,10 @@ import {
 import type { LinksFunction } from "@remix-run/node";
 
 import "./tailwind.css";
-
+import AppHeader from "./components/Layouts/AppHeader";
+// import { Toaster } from "react-hot-toast";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
@@ -41,5 +44,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  return <Outlet />;
+  return (
+    <div className=" flex flex-col min-h-screen">
+      <AppHeader />
+      <main className="flex-1 container mx-auto px-4 py-8">
+        <Outlet />
+        <ToastContainer position="top-center" autoClose={3000} />
+      </main>
+    </div>
+  );
 }
