@@ -103,14 +103,14 @@ export default function AppHeader() {
                 </li>
               </>
             ) : (
-              <ul className="bg-base-100 rounded-t-none p-2">
+              <>
                 <li>
                   <Link to="/login">登入</Link>
                 </li>
                 <li>
                   <Link to="/register">註冊</Link>
                 </li>
-              </ul>
+              </>
             )}
             {/* <ul className="bg-base-100 rounded-t-none p-2">
                 <li>
@@ -171,14 +171,14 @@ export default function AppHeader() {
                 </li>
               </>
             ) : (
-              <>
+              <div className="bg-base-100 rounded-t-none p-2">
                 <li>
                   <Link to="/login">登入</Link>
                 </li>
                 <li>
                   <Link to="/register">註冊</Link>
                 </li>
-              </>
+              </div>
             )}
           </ul>
         </div>
